@@ -1,0 +1,67 @@
+﻿@startuml
+title WarmHouse Container Diagram
+
+top to bottom direction
+
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Container.puml
+
+Person(user, "Пользователь", "Самообслуживание: подключает устройства, настраивает сценарии, наблюдает дом")
+System_Ext(partner_devices, "Устройства партнеров", "Устройства по стандартным протоколам")
+
+Boundary(warmhouse, "WarmHouse System") {
+  Container(api_gateway, "API шлюз", "HTTPS", "Единая точка входа для UI")
+  Container(web_app, "Веб‑приложение", "React", "Удаленный доступ и управление")
+
+  Container(auth_service, "Сервис аутентификации", "C#", "Регистрация, вход, токены, роли")
+  Container(device_mgmt, "Сервис управления устройствами", "C#", "Регистрация и жизненный цикл устройств")
+  Container(heating_service, "Сервис отопления", "C#", "Команды управления отоплением и установка температуры")
+  Container(lighting_service, "Сервис освещения", "C#", "Команды включения/выключения света")
+  Container(gate_service, "Сервис ворот", "C#", "Команды открыть/закрыть")
+  Container(video_service, "Сервис наблюдения", "C#", "Доступ к камерам и событиям")
+  Container(telemetry_service, "Сервис телеметрии", "C#", "Сбор и хранение показаний")
+  Container(automation_service, "Сервис сценариев", "C#", "Правила, расписания, триггеры")
+  Container(integration_service, "Сервис интеграции", "C#", "Адаптеры протоколов устройств партнеров")
+  Container(notification_service, "Сервис уведомлений", "C#", "Отправка событий пользователю")
+
+  ContainerDb(users_db, "БД пользователей", "PostgreSQL", "Аккаунты и права")
+  ContainerDb(devices_db, "БД устройств", "PostgreSQL", "Реестр устройств и их статусы")
+  ContainerDb(telemetry_db, "БД телеметрии", "PostgreSQL", "Временные ряды показаний")
+  ContainerDb(automation_db, "БД сценариев", "PostgreSQL", "Сценарии и расписания")
+
+  Container(message_bus, "Шина сообщений", "RabbitMQ", "Асинхронные события")
+}
+
+Rel(user, web_app, "Использует")
+
+Rel(web_app, api_gateway, "HTTPS")
+
+Rel(api_gateway, auth_service, "Аутентификация")
+Rel(api_gateway, device_mgmt, "Управление устройствами")
+Rel(api_gateway, heating_service, "Команды отопления и установка температуры")
+Rel(api_gateway, lighting_service, "Команды освещения")
+Rel(api_gateway, gate_service, "Команды ворот")
+Rel(api_gateway, video_service, "Доступ к камерам")
+Rel(api_gateway, telemetry_service, "Просмотр телеметрии")
+Rel(api_gateway, automation_service, "Сценарии")
+
+Rel(auth_service, users_db, "Чтение/запись")
+Rel(device_mgmt, devices_db, "Чтение/запись")
+Rel(telemetry_service, telemetry_db, "Чтение/запись")
+Rel(automation_service, automation_db, "Чтение/запись")
+
+Rel(device_mgmt, message_bus, "Публикация событий устройств")
+Rel(integration_service, message_bus, "Публикация телеметрии")
+Rel(message_bus, telemetry_service, "Поток телеметрии")
+Rel(automation_service, message_bus, "Подписка на события")
+Rel(notification_service, message_bus, "Подписка на события")
+
+Rel(integration_service, partner_devices, "Протоколы устройств")
+Rel(device_mgmt, integration_service, "Регистрация/проверка устройств")
+Rel(heating_service, integration_service, "Команды устройствам")
+Rel(lighting_service, integration_service, "Команды устройствам")
+Rel(gate_service, integration_service, "Команды устройствам")
+Rel(video_service, integration_service, "Потоки/события")
+
+@enduml
+
+

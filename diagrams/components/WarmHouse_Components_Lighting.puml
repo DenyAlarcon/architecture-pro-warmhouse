@@ -1,0 +1,24 @@
+﻿@startuml
+title WarmHouse: Компоненты сервиса освещения
+
+top to bottom direction
+
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+Container_Boundary(WarmHouseSystem, "WarmHouse System") {
+  Container(Lighting, "Сервис освещения", "C#, ASP.NET Core", "Команды включения/выключения света")
+}
+
+Container(Lighting, "Сервис освещения", "C#, ASP.NET Core") {
+  Component(LightingController, "LightingController", "HTTP/JSON", "Команды управления")
+  Component(LightingService, "Lighting Service", "C#, ASP.NET Core", "Бизнес-логика освещения")
+  Component(RulesEngine, "Rules Engine", "C#, ASP.NET Core", "Ограничения и политики")
+  Component(IntegrationClient, "Integration Client", "C#, ASP.NET Core", "Отправка команд устройствам")
+  Component(EventPublisher, "Event Publisher", "C#, ASP.NET Core", "События изменения состояния")
+}
+
+Rel(LightingController, LightingService, "Вызывает")
+Rel(LightingService, RulesEngine, "Проверяет")
+Rel(LightingService, IntegrationClient, "Отправляет команду")
+Rel(LightingService, EventPublisher, "Создает события")
+@enduml

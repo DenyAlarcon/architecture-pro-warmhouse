@@ -1,0 +1,20 @@
+@startuml
+title Регистрация устройства (последовательность)
+
+actor User as user
+participant "API шлюз" as api
+participant "Сервис управления устройствами" as device_mgmt
+participant "Сервис интеграции" as integration
+database "БД устройств" as devices_db
+participant "Шина сообщений" as bus
+
+user -> api : POST /devices (данные устройства)
+api -> device_mgmt : Запрос регистрации
+device_mgmt -> integration : Проверка устройства/протокола
+integration --> device_mgmt : Подтверждение/метаданные
+device_mgmt -> devices_db : Создать запись
+devices_db --> device_mgmt : OK
+device_mgmt -> bus : Событие DeviceRegistered
+device_mgmt --> api : Ответ об успешной регистрации
+api --> user : 201 Created
+@enduml

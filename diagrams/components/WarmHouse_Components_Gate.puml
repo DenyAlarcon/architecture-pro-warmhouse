@@ -1,0 +1,24 @@
+﻿@startuml
+title WarmHouse: Компоненты сервиса ворот
+
+top to bottom direction
+
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+Container_Boundary(WarmHouseSystem, "WarmHouse System") {
+  Container(Gate, "Сервис ворот", "C#, ASP.NET Core", "Команды открыть/закрыть")
+}
+
+Container(Gate, "Сервис ворот", "C#, ASP.NET Core") {
+  Component(GateController, "GateController", "HTTP/JSON", "Команды управления")
+  Component(GateService, "Gate Service", "C#, ASP.NET Core", "Бизнес-логика ворот")
+  Component(RulesEngine, "Rules Engine", "C#, ASP.NET Core", "Ограничения и политики")
+  Component(IntegrationClient, "Integration Client", "C#, ASP.NET Core", "Отправка команд устройствам")
+  Component(EventPublisher, "Event Publisher", "C#, ASP.NET Core", "События изменения состояния")
+}
+
+Rel(GateController, GateService, "Вызывает")
+Rel(GateService, RulesEngine, "Проверяет")
+Rel(GateService, IntegrationClient, "Отправляет команду")
+Rel(GateService, EventPublisher, "Создает события")
+@enduml

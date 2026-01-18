@@ -1,0 +1,24 @@
+﻿@startuml
+title WarmHouse: Компоненты сервиса наблюдения
+
+top to bottom direction
+
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+Container_Boundary(WarmHouseSystem, "WarmHouse System") {
+  Container(Video, "Сервис наблюдения", "C#, ASP.NET Core", "Доступ к камерам и событиям")
+}
+
+Container(Video, "Сервис наблюдения", "C#, ASP.NET Core") {
+  Component(VideoController, "VideoController", "HTTP/JSON", "Доступ к камерам и записям")
+  Component(StreamService, "Stream Service", "C#, ASP.NET Core", "Управление потоками")
+  Component(ArchiveService, "Archive Service", "C#, ASP.NET Core", "Управление записями")
+  Component(IntegrationClient, "Integration Client", "C#, ASP.NET Core", "Подключение к устройствам")
+  Component(EventPublisher, "Event Publisher", "C#, ASP.NET Core", "События видео")
+}
+
+Rel(VideoController, StreamService, "Вызывает")
+Rel(VideoController, ArchiveService, "Вызывает")
+Rel(StreamService, IntegrationClient, "Запрос потока")
+Rel(StreamService, EventPublisher, "Создает события")
+@enduml
