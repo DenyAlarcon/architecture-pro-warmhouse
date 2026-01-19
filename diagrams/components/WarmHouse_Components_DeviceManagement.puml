@@ -1,0 +1,28 @@
+﻿@startuml
+title WarmHouse: Компоненты сервиса управления устройствами
+
+top to bottom direction
+
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+Container_Boundary(WarmHouseSystem, "WarmHouse System") {
+  Container(DeviceMgmt, "Сервис управления устройствами", "C#, ASP.NET Core", "Регистрация и жизненный цикл устройств")
+  ContainerDb(DevicesDb, "БД устройств", "PostgreSQL", "Устройства, владельцы, статусы")
+}
+
+Container(DeviceMgmt, "Сервис управления устройствами", "C#, ASP.NET Core") {
+  Component(DeviceController, "DeviceController", "HTTP/JSON", "Управление устройствами")
+  Component(CommandController, "CommandController", "HTTP/JSON", "Команды управления")
+  Component(DeviceService, "Device Service", "C#, ASP.NET Core", "Бизнес-логика устройств")
+  Component(ProtocolResolver, "Protocol Resolver", "C#, ASP.NET Core", "Выбор адаптера")
+  Component(EventPublisher, "Event Publisher", "C#, ASP.NET Core", "Публикация событий")
+  Component(DeviceRepository, "Device Repository", "C#, ASP.NET Core", "Доступ к данным устройств")
+}
+
+Rel(DeviceController, DeviceService, "Вызывает")
+Rel(CommandController, DeviceService, "Вызывает")
+Rel(DeviceService, ProtocolResolver, "Определяет протокол")
+Rel(DeviceService, EventPublisher, "Создает события")
+Rel(DeviceService, DeviceRepository, "Чтение/запись")
+Rel(DeviceRepository, DevicesDb, "SQL")
+@enduml

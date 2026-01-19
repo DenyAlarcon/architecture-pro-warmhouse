@@ -1,0 +1,25 @@
+﻿@startuml
+title Команда управления отоплением (последовательность)
+
+actor User as user
+participant "API шлюз" as api
+participant "Сервис отопления" as heating
+participant "Сервис интеграции" as integration
+participant "Устройство (реле)" as device
+participant "Шина сообщений" as bus
+participant "Сервис телеметрии" as telemetry
+participant "Сервис уведомлений" as notify
+
+user -> api : POST /heating/commands (дом, устройство, set_temperature)
+api -> heating : Команда установить температуру
+heating -> integration : Отправить команду по протоколу
+integration -> device : Установить температуру
+device --> integration : Ответ об успехе
+integration -> bus : Публикация телеметрии состояния
+bus -> telemetry : Поток телеметрии
+heating -> bus : Событие HeatingStateChanged
+bus -> notify : Событие для уведомлений
+heating --> api : Ответ об успешном выполнении
+api --> user : 200 OK
+notify --> user : Push "Температура установлена"
+@enduml

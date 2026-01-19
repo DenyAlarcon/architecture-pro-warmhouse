@@ -1,0 +1,26 @@
+﻿@startuml
+title WarmHouse: Компоненты сервиса аутентификации
+
+top to bottom direction
+
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+Container_Boundary(WarmHouseSystem, "WarmHouse System") {
+  Container(Auth, "Сервис аутентификации", "C#, ASP.NET Core", "Регистрация, вход, токены, роли")
+  ContainerDb(UsersDb, "БД пользователей", "PostgreSQL", "Аккаунты и роли")
+}
+
+Container(Auth, "Сервис аутентификации", "C#, ASP.NET Core") {
+  Component(AuthController, "AuthController", "HTTP/JSON", "Регистрация и вход")
+  Component(AuthService, "Auth Service", "C#, ASP.NET Core", "Проверка учетных данных")
+  Component(TokenService, "Token Service", "C#, ASP.NET Core", "Генерация и проверка токенов")
+  Component(UserRepository, "User Repository", "C#, ASP.NET Core", "Доступ к данным пользователей")
+  Component(PasswordHasher, "Password Hasher", "C#, ASP.NET Core", "Хеширование паролей")
+}
+
+Rel(AuthController, AuthService, "Вызывает")
+Rel(AuthService, TokenService, "Создает токены")
+Rel(AuthService, PasswordHasher, "Проверяет пароль")
+Rel(AuthService, UserRepository, "Чтение/запись")
+Rel(UserRepository, UsersDb, "SQL")
+@enduml

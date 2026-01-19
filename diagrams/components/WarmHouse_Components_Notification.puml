@@ -1,0 +1,24 @@
+﻿@startuml
+title WarmHouse: Компоненты сервиса уведомлений
+
+top to bottom direction
+
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+Container_Boundary(WarmHouseSystem, "WarmHouse System") {
+  Container(Notification, "Сервис уведомлений", "C#, ASP.NET Core", "Отправка событий пользователю")
+}
+
+Container(Notification, "Сервис уведомлений", "C#, ASP.NET Core") {
+  Component(NotificationController, "NotificationController", "HTTP/JSON", "Настройки уведомлений")
+  Component(NotificationService, "Notification Service", "C#, ASP.NET Core", "Бизнес-логика уведомлений")
+  Component(TemplateEngine, "Template Engine", "C#, ASP.NET Core", "Формирование сообщений")
+  Component(ProviderClient, "Provider Client", "C#, ASP.NET Core", "Отправка Push")
+  Component(EventSubscriber, "Event Subscriber", "C#, ASP.NET Core", "Слушает события")
+}
+
+Rel(NotificationController, NotificationService, "Вызывает")
+Rel(NotificationService, TemplateEngine, "Формирует сообщение")
+Rel(NotificationService, ProviderClient, "Отправляет")
+Rel(NotificationService, EventSubscriber, "Получает события")
+@enduml

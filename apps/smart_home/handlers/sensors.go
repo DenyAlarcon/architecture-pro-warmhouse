@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"time"
 
 	"smarthome/db"
 	"smarthome/models"
@@ -18,13 +19,17 @@ import (
 type SensorHandler struct {
 	DB                 *db.DB
 	TemperatureService *services.TemperatureService
+	DeviceService      *services.DeviceService
+	TelemetryService   *services.TelemetryIngestService
 }
 
 // NewSensorHandler creates a new SensorHandler
-func NewSensorHandler(db *db.DB, temperatureService *services.TemperatureService) *SensorHandler {
+func NewSensorHandler(db *db.DB, temperatureService *services.TemperatureService, deviceService *services.DeviceService, telemetryService *services.TelemetryIngestService) *SensorHandler {
 	return &SensorHandler{
 		DB:                 db,
 		TemperatureService: temperatureService,
+		DeviceService:      deviceService,
+		TelemetryService:   telemetryService,
 	}
 }
 
@@ -142,6 +147,12 @@ func (h *SensorHandler) CreateSensor(c *gin.Context) {
 		return
 	}
 
+	if h.DeviceService != nil {
+		if err := h.DeviceService.RegisterDevice(sensor); err != nil {
+			log.Printf("Failed to register device %d: %v", sensor.ID, err)
+		}
+	}
+
 	c.JSON(http.StatusCreated, sensor)
 }
 
@@ -207,6 +218,27 @@ func (h *SensorHandler) UpdateSensorValue(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
+	}
+
+	if h.TelemetryService != nil {
+		sensor, err := h.DB.GetSensorByID(context.Background(), id)
+		if err == nil {
+			metric := "value"
+			if sensor.Type == models.Temperature {
+				metric = "temperature"
+			}
+			if err := h.TelemetryService.Record(
+				strconv.Itoa(sensor.ID),
+				metric,
+				request.Value,
+				sensor.Unit,
+				time.Now().UTC(),
+			); err != nil {
+				log.Printf("Failed to send telemetry for sensor %d: %v", sensor.ID, err)
+			}
+		} else {
+			log.Printf("Failed to load sensor %d for telemetry: %v", id, err)
+		}
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Sensor value updated successfully"})

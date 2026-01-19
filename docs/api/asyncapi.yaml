@@ -1,0 +1,68 @@
+﻿asyncapi: 2.6.0
+info:
+  title: WarmHouse AsyncAPI
+  version: 1.0.0
+  description: Асинхронные события для телеметрии и жизненного цикла устройств.
+servers:
+  rabbitmq:
+    url: amqp://rabbitmq:5672
+    protocol: amqp
+channels:
+  telemetry.readings:
+    subscribe:
+      summary: Поток телеметрии
+      message:
+        name: TelemetryReading
+        payload:
+          $ref: '#/components/schemas/TelemetryReading'
+        examples:
+          - payload:
+              deviceId: "d0f7a86d-9c12-4b9f-93c2-4e6c4e2b0f5a"
+              metric: "temperature"
+              value: 21.9
+              unit: "C"
+              recordedAt: "2026-01-20T10:05:00Z"
+  device.events:
+    subscribe:
+      summary: События жизненного цикла устройства
+      message:
+        name: DeviceEvent
+        payload:
+          $ref: '#/components/schemas/DeviceEvent'
+        examples:
+          - payload:
+              deviceId: "d0f7a86d-9c12-4b9f-93c2-4e6c4e2b0f5a"
+              type: "registered"
+              occurredAt: "2026-01-20T09:00:10Z"
+components:
+  schemas:
+    TelemetryReading:
+      type: object
+      required: [deviceId, metric, value, unit, recordedAt]
+      properties:
+        deviceId:
+          type: string
+          format: uuid
+        metric:
+          type: string
+        value:
+          type: number
+          format: double
+        unit:
+          type: string
+        recordedAt:
+          type: string
+          format: date-time
+    DeviceEvent:
+      type: object
+      required: [deviceId, type, occurredAt]
+      properties:
+        deviceId:
+          type: string
+          format: uuid
+        type:
+          type: string
+          enum: [registered, activated, deactivated, online, offline]
+        occurredAt:
+          type: string
+          format: date-time

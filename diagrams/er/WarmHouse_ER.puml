@@ -1,0 +1,72 @@
+@startuml
+title WarmHouse ER Diagram
+
+hide circle
+skinparam linetype ortho
+
+entity "User" as user {
+  *id : UUID <<PK>>
+  --
+  name : string
+  email : string
+  created_at : datetime
+}
+
+entity "House" as house {
+  *id : UUID <<PK>>
+  --
+  user_id : UUID <<FK>>
+  name : string
+  address : string
+  timezone : string
+  created_at : datetime
+}
+
+entity "Module" as module {
+  *id : UUID <<PK>>
+  --
+  house_id : UUID <<FK>>
+  name : string
+  type : string
+  status : string
+  created_at : datetime
+}
+
+entity "DeviceType" as device_type {
+  *id : UUID <<PK>>
+  --
+  name : string
+  category : string
+  protocol : string
+  created_at : datetime
+}
+
+entity "Device" as device {
+  *id : UUID <<PK>>
+  --
+  house_id : UUID <<FK>>
+  module_id : UUID <<FK>>
+  type_id : UUID <<FK>>
+  serial_number : string
+  status : string
+  last_seen_at : datetime
+  installed_at : datetime
+}
+
+entity "TelemetryData" as telemetry {
+  *id : UUID <<PK>>
+  --
+  device_id : UUID <<FK>>
+  metric : string
+  value : decimal
+  unit : string
+  recorded_at : datetime
+}
+
+user ||--o{ house : владеет
+house ||--o{ module : содержит
+house ||--o{ device : имеет
+module ||--o{ device : группирует
+device_type ||--o{ device : классифицирует
+device ||--o{ telemetry : генерирует
+@enduml

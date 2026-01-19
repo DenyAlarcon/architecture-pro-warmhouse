@@ -1,0 +1,24 @@
+﻿@startuml
+title WarmHouse: Компоненты сервиса отопления
+
+top to bottom direction
+
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+Container_Boundary(WarmHouseSystem, "WarmHouse System") {
+  Container(Heating, "Сервис отопления", "C#, ASP.NET Core", "Команды включения/выключения и установки температуры")
+}
+
+Container(Heating, "Сервис отопления", "C#, ASP.NET Core") {
+  Component(HeatingController, "HeatingController", "HTTP/JSON", "Команды управления отоплением")
+  Component(HeatingService, "Heating Service", "C#, ASP.NET Core", "Бизнес-логика отопления")
+  Component(RulesEngine, "Rules Engine", "C#, ASP.NET Core", "Ограничения и политики")
+  Component(IntegrationClient, "Integration Client", "C#, ASP.NET Core", "Отправка команд устройствам")
+  Component(EventPublisher, "Event Publisher", "C#, ASP.NET Core", "События изменения состояния")
+}
+
+Rel(HeatingController, HeatingService, "Вызывает")
+Rel(HeatingService, RulesEngine, "Проверяет")
+Rel(HeatingService, IntegrationClient, "Отправляет команду")
+Rel(HeatingService, EventPublisher, "Создает события")
+@enduml

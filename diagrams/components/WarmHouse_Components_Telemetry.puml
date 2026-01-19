@@ -1,0 +1,28 @@
+﻿@startuml
+title WarmHouse: Компоненты сервиса телеметрии
+
+top to bottom direction
+
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+Container_Boundary(WarmHouseSystem, "WarmHouse System") {
+  Container(Telemetry, "Сервис телеметрии", "C#, ASP.NET Core", "Сбор и хранение показаний")
+  ContainerDb(TelemetryDb, "БД телеметрии", "TimescaleDB", "Временные ряды показаний")
+}
+
+Container(Telemetry, "Сервис телеметрии", "C#, ASP.NET Core") {
+  Component(EventSubscriber, "Event Subscriber", "AMQP/JSON", "Прием телеметрии из шины")
+  Component(QueryController, "QueryController", "HTTP/JSON", "Запросы для UI")
+  Component(TelemetryService, "Telemetry Service", "C#, ASP.NET Core", "Бизнес-логика телеметрии")
+  Component(Normalizer, "Normalizer", "C#, ASP.NET Core", "Валидация и нормализация")
+  Component(EventPublisher, "Event Publisher", "C#, ASP.NET Core", "События о новых данных")
+  Component(TelemetryRepository, "Telemetry Repository", "C#, ASP.NET Core", "Доступ к данным")
+}
+
+Rel(EventSubscriber, TelemetryService, "Передает данные")
+Rel(QueryController, TelemetryService, "Вызывает")
+Rel(TelemetryService, Normalizer, "Нормализует")
+Rel(TelemetryService, TelemetryRepository, "Чтение/запись")
+Rel(TelemetryService, EventPublisher, "Создает события")
+Rel(TelemetryRepository, TelemetryDb, "SQL")
+@enduml

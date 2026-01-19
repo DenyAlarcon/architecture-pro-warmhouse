@@ -1,0 +1,30 @@
+﻿@startuml
+title WarmHouse: Компоненты сервиса сценариев
+
+top to bottom direction
+
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+Container_Boundary(WarmHouseSystem, "WarmHouse System") {
+  Container(Automation, "Сервис сценариев", "C#, ASP.NET Core", "Правила, расписания, триггеры")
+  ContainerDb(AutomationDb, "БД сценариев", "PostgreSQL", "Сценарии и расписания")
+}
+
+Container(Automation, "Сервис сценариев", "C#, ASP.NET Core") {
+  Component(ScenarioController, "ScenarioController", "HTTP/JSON", "Управление сценариями")
+  Component(ScenarioService, "Scenario Service", "C#, ASP.NET Core", "Бизнес-логика сценариев")
+  Component(RuleEngine, "Rule Engine", "C#, ASP.NET Core", "Выполнение сценариев")
+  Component(Scheduler, "Scheduler", "C#, ASP.NET Core", "Расписания и таймеры")
+  Component(CommandDispatcher, "Command Dispatcher", "C#, ASP.NET Core", "Отправка команд")
+  Component(ScenarioRepository, "Scenario Repository", "C#, ASP.NET Core", "Хранение сценариев")
+  Component(EventSubscriber, "Event Subscriber", "C#, ASP.NET Core", "Слушает события")
+}
+
+Rel(ScenarioController, ScenarioService, "Вызывает")
+Rel(ScenarioService, ScenarioRepository, "Чтение/запись")
+Rel(ScenarioService, RuleEngine, "Запускает")
+Rel(RuleEngine, Scheduler, "Использует")
+Rel(RuleEngine, CommandDispatcher, "Отправляет команды")
+Rel(RuleEngine, EventSubscriber, "Слушает события")
+Rel(ScenarioRepository, AutomationDb, "SQL")
+@enduml

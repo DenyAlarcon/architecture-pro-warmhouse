@@ -1,0 +1,26 @@
+﻿@startuml
+title WarmHouse: Компоненты сервиса интеграции
+
+top to bottom direction
+
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+Container_Boundary(WarmHouseSystem, "WarmHouse System") {
+  Container(Integration, "Сервис интеграции", "C#, ASP.NET Core", "Адаптеры протоколов устройств партнеров")
+}
+
+Container(Integration, "Сервис интеграции", "C#, ASP.NET Core") {
+  Component(IntegrationController, "IntegrationController", "HTTP/JSON", "Прием команд и данных")
+  Component(IntegrationService, "Integration Service", "C#, ASP.NET Core", "Оркестрация обмена")
+  Component(ProtocolAdapters, "Protocol Adapters", "C#, ASP.NET Core", "MQTT/HTTP/CoAP адаптеры")
+  Component(DeviceConnector, "Device Connector", "C#, ASP.NET Core", "Поддержание связи")
+  Component(CommandDispatcher, "Command Dispatcher", "C#, ASP.NET Core", "Отправка команд")
+  Component(TelemetryCollector, "Telemetry Collector", "C#, ASP.NET Core", "Сбор телеметрии")
+}
+
+Rel(IntegrationController, IntegrationService, "Вызывает")
+Rel(IntegrationService, ProtocolAdapters, "Использует")
+Rel(IntegrationService, DeviceConnector, "Использует")
+Rel(IntegrationService, CommandDispatcher, "Отправляет команды")
+Rel(IntegrationService, TelemetryCollector, "Собирает данные")
+@enduml
